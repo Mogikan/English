@@ -8,3 +8,5 @@ structure:
         path: /a1/definite-indefinite-article
       - title: Tenses
         path: /a1/tenses
+      - title: Word order
+        path: /a1/word-order
