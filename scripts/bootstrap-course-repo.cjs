@@ -64,6 +64,16 @@ async function bootstrap() {
         run('git checkout -b main', TEMP_DIR);
     }
 
+    // 2.1 Preserve CNAME if exists (GitHub Pages)
+    // If CNAME exists in the repo, we ensure it's in public/ so it gets included in the build
+    const cnamePath = path.join(TEMP_DIR, 'CNAME');
+    if (fs.existsSync(cnamePath)) {
+        console.log('📄 Found CNAME, preserving in public/ to include in build...');
+        const publicDir = path.join(TEMP_DIR, 'public');
+        if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir);
+        fs.copyFileSync(cnamePath, path.join(publicDir, 'CNAME'));
+    }
+
     // 3. Clean Target Directory (remove everything except .git and content potentially)
     // We want to KEEP content/ if it exists, but overwrite application code.
     // Actually, simpler to just overwrite App code.

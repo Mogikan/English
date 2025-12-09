@@ -8,6 +8,7 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 // https://vite.dev/config/
 export default defineConfig({
   base: '/English/',
+  base: './',
   plugins: [
     mdx({
       remarkPlugins: [remarkGfm, remarkFrontmatter, remarkMdxFrontmatter],

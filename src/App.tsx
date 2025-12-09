@@ -477,7 +477,7 @@ export default function ReaderApp() {
         <SettingsProvider>
             <ProgressProvider>
                 <ToastProvider>
-                    <Router basename={import.meta.env.BASE_URL}>
+                    <Router basename={import.meta.env.BASE_URL.startsWith('.') ? '/' : import.meta.env.BASE_URL}>
                         <AppContent />
                     </Router>
                 </ToastProvider>
