@@ -1,0 +1,72 @@
+[
+  {
+    "type": "folder",
+    "name": "a1",
+    "path": "a1",
+    "children": [
+      {
+        "type": "image",
+        "name": "kitchen.jpeg",
+        "path": "/images/a1/kitchen.jpeg",
+        "size": 155477
+      },
+      {
+        "type": "folder",
+        "name": "lesson1",
+        "path": "a1/lesson1",
+        "children": []
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "a2",
+    "path": "a2",
+    "children": []
+  },
+  {
+    "type": "folder",
+    "name": "b1",
+    "path": "b1",
+    "children": [
+      {
+        "type": "folder",
+        "name": "lesson1",
+        "path": "b1/lesson1",
+        "children": []
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "b2",
+    "path": "b2",
+    "children": []
+  },
+  {
+    "type": "folder",
+    "name": "c1",
+    "path": "c1",
+    "children": [
+      {
+        "type": "folder",
+        "name": "lesson1",
+        "path": "c1/lesson1",
+        "children": []
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "name": "shared",
+    "path": "shared",
+    "children": [
+      {
+        "type": "image",
+        "name": "floorplan.jpeg",
+        "path": "/images/shared/floorplan.jpeg",
+        "size": 46352
+      }
+    ]
+  }
+]
