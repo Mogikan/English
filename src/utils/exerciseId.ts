@@ -1,4 +1,4 @@
-// Utility to generate stable exercise IDs based on content
+import { normalizePath } from './pathUtils';
 
 /**
  * Generate a stable exercise ID using content hash
@@ -12,8 +12,9 @@ export function generateStableExerciseId(
     exerciseType: string,
     content: string
 ): string {
+    const cleanPath = normalizePath(lessonPath);
     const hash = simpleHash(content);
-    return `${lessonPath}:${exerciseType}:${hash}`;
+    return `${cleanPath}:${exerciseType}:${hash}`;
 }
 
 /**

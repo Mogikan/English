@@ -11,6 +11,7 @@ import {
     type FolderProgress,
     type CourseProgress
 } from '../utils/progressStorage';
+import { normalizePath } from '../utils/pathUtils';
 
 interface ProgressContextType {
     markExerciseComplete: (exerciseId: string, lessonPath: string) => void;
@@ -28,8 +29,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     // Force re-render trigger
     const [, setRefreshKey] = useState(0);
 
+
+
     const markExerciseComplete = useCallback((exerciseId: string, lessonPath: string) => {
-        saveExerciseProgress(exerciseId, lessonPath);
+        saveExerciseProgress(exerciseId, normalizePath(lessonPath));
         setRefreshKey(prev => prev + 1); // Trigger re-render
     }, []);
 

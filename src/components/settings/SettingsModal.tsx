@@ -102,11 +102,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         const loadVoices = () => {
             const voices = window.speechSynthesis.getVoices();
             setAvailableVoices(voices);
-            const langs = Array.from(new Set(voices.map(v => v.lang))).sort();
-            setAvailableLangs(langs);
+
+            // Start with a static list of common languages to ensure the UI is usable
+            // even if speech synthesis is not ready or supported
+            const commonLangs = [
+                'bg-BG', 'cs-CZ', 'da-DK', 'de-DE', 'el-GR', 'en-AU', 'en-GB', 'en-US',
+                'es-ES', 'es-MX', 'fi-FI', 'fr-CA', 'fr-FR', 'he-IL', 'hi-IN', 'hu-HU',
+                'id-ID', 'it-IT', 'ja-JP', 'ko-KR', 'nl-NL', 'nb-NO', 'pl-PL', 'pt-BR',
+                'pt-PT', 'ro-RO', 'ru-RU', 'sk-SK', 'sv-SE', 'th-TH', 'tr-TR', 'uk-UA',
+                'vi-VN', 'zh-CN', 'zh-TW'
+            ];
+
+            const synthLangs = voices.map(v => v.lang);
+            const allLangs = Array.from(new Set([...commonLangs, ...synthLangs])).sort();
+
+            setAvailableLangs(allLangs);
         };
+
         loadVoices();
         window.speechSynthesis.onvoiceschanged = loadVoices;
+
+        return () => {
+            window.speechSynthesis.onvoiceschanged = null;
+        };
     }, []);
 
     useEffect(() => {
