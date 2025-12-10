@@ -11,6 +11,10 @@ const DIST_PATH = path.join(__dirname, '../dist');
 const BASE_URL = 'https://www.kornei.de';
 
 function loadCourse() {
+    if (!fs.existsSync(COURSE_PATH)) {
+        console.warn('⚠️ course.yaml not found, skipping course routes.');
+        return { structure: [] };
+    }
     const fileContents = fs.readFileSync(COURSE_PATH, 'utf8');
     return yaml.load(fileContents);
 }

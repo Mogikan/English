@@ -10,6 +10,10 @@ const COURSE_PATH = path.join(__dirname, '../src/content/course.yaml');
 const DIST_PATH = path.join(__dirname, '../dist');
 
 function loadCourse() {
+    if (!fs.existsSync(COURSE_PATH)) {
+        console.warn('⚠️ course.yaml not found, skipping course routes.');
+        return { structure: [] };
+    }
     const fileContents = fs.readFileSync(COURSE_PATH, 'utf8');
     return yaml.load(fileContents);
 }

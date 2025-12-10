@@ -60,13 +60,6 @@
     "type": "folder",
     "name": "shared",
     "path": "shared",
-    "children": [
-      {
-        "type": "image",
-        "name": "floorplan.jpeg",
-        "path": "/images/shared/floorplan.jpeg",
-        "size": 46352
-      }
-    ]
+    "children": []
   }
 ]
