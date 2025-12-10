@@ -7,7 +7,7 @@ import { Matching } from './exercises/Matching';
 import { Ordering } from './exercises/Ordering';
 import { Grouping } from './exercises/Grouping';
 import { InlineBlanks } from './exercises/InlineBlanks';
-import { Dialogue } from './exercises/Dialogue';
+import { Dialogue, Message } from './exercises/Dialogue';
 import { InteractiveMedia, Checkpoint } from './exercises/InteractiveMedia';
 import { AudioPhrase } from './exercises/AudioPhrase';
 import { SpeakingChallenge } from './exercises/SpeakingChallenge';
@@ -30,6 +30,7 @@ const components = {
     Dialogue,
     Flashcards,
     ImageLabeling,
+    Message,
 
     // Add other components here
 };
