@@ -97,9 +97,16 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
     useEffect(() => {
         const loadVoices = () => {
             const availableVoices = window.speechSynthesis.getVoices();
-            // Filter for German voices
-            const germanVoices = availableVoices.filter(v => v.lang.startsWith('de'));
-            setVoices(germanVoices.length > 0 ? germanVoices : availableVoices);
+            // Filter for voices matching learning language (e.g. 'de-DE', 'en-US')
+            // Match logic: start with the full code, fallback to just the language part (e.g. 'de')
+            const langCode = languageSettings.learningLang || 'en-US';
+            const langPrefix = langCode.split('-')[0];
+
+            const matchingVoices = availableVoices.filter(v =>
+                v.lang === langCode || v.lang.startsWith(langPrefix)
+            );
+
+            setVoices(matchingVoices.length > 0 ? matchingVoices : availableVoices);
         };
 
         loadVoices();
@@ -109,7 +116,7 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
             window.speechSynthesis.onvoiceschanged = null;
             window.speechSynthesis.cancel();
         };
-    }, []);
+    }, [languageSettings.learningLang]); // Reload if language changes
 
     // Assign voices to speakers
     useEffect(() => {
@@ -118,11 +125,23 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
         const uniqueSpeakers = Array.from(new Set(lines.map(l => l.speaker)));
         const assignments: { [speaker: string]: SpeechSynthesisVoice } = {};
 
-        // Simple strategy: try to alternate voices or find specific ones
-        // On macOS, we often have "Anna" (female), "Markus" (male), "Petra" (female), "Yannick" (male)
+        // Use global settings voice priority: primary, secondary, additional[]
+        const globalVoicesList = [
+            languageSettings.learningVoices.primary,
+            languageSettings.learningVoices.secondary,
+            ...(languageSettings.learningVoices.additional || [])
+        ].filter(v => v); // Remove empty values
 
-        const maleNames = ['Markus', 'Yannick', 'Viktor', 'Stefan', 'Microsoft Stefan'];
-        const femaleNames = ['Anna', 'Petra', 'Amelie', 'Hedda', 'Microsoft Hedda', 'Katja'];
+        // Find the actual voice objects corresponding to the names in settings
+        const availableGlobalVoices = globalVoicesList
+            .map(name => voices.find(v => v.name === name))
+            .filter((v): v is SpeechSynthesisVoice => !!v);
+
+        let globalVoiceIdx = 0;
+
+        // Fallback pools if settings are not enough
+        const maleNames = ['Markus', 'Yannick', 'Viktor', 'Stefan', 'Microsoft Stefan', 'David', 'James'];
+        const femaleNames = ['Anna', 'Petra', 'Amelie', 'Hedda', 'Microsoft Hedda', 'Katja', 'Linda', 'Mary'];
 
         const maleVoices = voices.filter((v: SpeechSynthesisVoice) => maleNames.some(name => v.name.includes(name)) || v.name.toLowerCase().includes('male'));
         const femaleVoices = voices.filter((v: SpeechSynthesisVoice) => femaleNames.some(name => v.name.includes(name)) || v.name.toLowerCase().includes('female'));
@@ -135,8 +154,8 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
         let femaleIdx = 0;
         let otherIdx = 0;
 
-        uniqueSpeakers.forEach((speaker, index) => {
-            // First check if this line has an explicit voice preference
+        uniqueSpeakers.forEach((speaker) => {
+            // 1. Check if this line has an explicit voice preference defined in prop
             const lineWithSpeaker = lines.find(l => l.speaker === speaker);
             if (lineWithSpeaker?.voice) {
                 const explicitVoice = voices.find(v => v.name === lineWithSpeaker.voice);
@@ -146,26 +165,16 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
                 }
             }
 
-            // Use global settings voice priority: primary, secondary, additional[]
-            const globalVoices = [
-                languageSettings.learningVoices.primary,
-                languageSettings.learningVoices.secondary,
-                ...(languageSettings.learningVoices.additional || [])
-            ].filter(Boolean); // Remove empty values
-
-            // Try to assign from global voice priority based on speaker index
-            if (globalVoices.length > 0 && index < globalVoices.length) {
-                const globalVoiceName = globalVoices[index];
-                const globalVoice = voices.find(v => v.name === globalVoiceName);
-                if (globalVoice) {
-                    assignments[speaker] = globalVoice;
-                    return;
-                }
+            // 2. Try to assign from global settings (Primary, Secondary, Additional) sequentially
+            if (globalVoiceIdx < availableGlobalVoices.length) {
+                assignments[speaker] = availableGlobalVoices[globalVoiceIdx];
+                globalVoiceIdx++;
+                return;
             }
 
-            // Fallback to original heuristic logic
-            const isLikelyMale = ['Mark', 'Hans', 'Peter', 'Lukas'].some(n => speaker.includes(n));
-            const isLikelyFemale = ['Anna', 'Maria', 'Julia', 'Lisa'].some(n => speaker.includes(n));
+            // 3. Fallback to heuristic logic (Male/Female/Other)
+            const isLikelyMale = ['Mark', 'Hans', 'Peter', 'Lukas', 'John', 'David'].some(n => speaker.includes(n));
+            const isLikelyFemale = ['Anna', 'Maria', 'Julia', 'Lisa', 'Sarah', 'Mary'].some(n => speaker.includes(n));
 
             if (isLikelyMale && maleVoices.length > 0) {
                 assignments[speaker] = maleVoices[maleIdx % maleVoices.length];
@@ -187,7 +196,7 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
         });
 
         setSpeakerVoices(assignments);
-    }, [voices, lines]);
+    }, [voices, lines, languageSettings]);
 
     const speak = (text: string, speaker: string, preferredVoiceName?: string, silent?: boolean) => {
         if (isMuted || !text || silent) return;
@@ -195,7 +204,8 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
         window.speechSynthesis.cancel(); // Stop previous
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'de-DE';
+        // Use the configured learning language
+        utterance.lang = languageSettings.learningLang || 'en-US';
 
         let voiceToUse: SpeechSynthesisVoice | undefined;
 
@@ -204,12 +214,12 @@ export const Dialogue: React.FC<DialogueProps> = ({ lines: propLines, children, 
             voiceToUse = voices.find(v => v.name === preferredVoiceName);
         }
 
-        // 2. Fallback to auto-assigned speaker voice
+        // 2. Fallback to auto-assigned speaker voice (which now respects global settings)
         if (!voiceToUse && speakerVoices[speaker]) {
             voiceToUse = speakerVoices[speaker];
         }
 
-        // 3. Absolute fallback (first available German voice)
+        // 3. Absolute fallback (first available matching voice)
         if (!voiceToUse && voices.length > 0) {
             voiceToUse = voices[0];
         }
