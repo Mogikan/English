@@ -86,7 +86,7 @@ const MarkdownBlank = ({ indexStr }: { indexStr: string }) => {
 
     const value = inputs[index] || '';
     const isCorrect = value.trim().toLowerCase() === data.answer.toLowerCase();
-    const showValidation = submitted || (touched[index] && value.trim() !== '');
+    const showValidation = submitted;
     const isPartialMatch = value.trim().length > 0 && data.answer.toLowerCase().startsWith(value.trim().toLowerCase());
 
     const status = {

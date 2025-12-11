@@ -37,13 +37,13 @@ const InlineMarkdownBlank = ({ indexStr }: { indexStr: string }) => {
 
     const value = inputs[index] || '';
     const isCorrect = value.trim().toLowerCase() === data.answer.toLowerCase();
-    const showValidation = touched[index] && value.trim() !== '';
-    const isPartialMatch = value.trim().length > 0 && data.answer.toLowerCase().startsWith(value.trim().toLowerCase());
+    const showValidation = touched[index] && blurred[index] && value.trim() !== '';
+
 
     const status = {
         value,
         isCorrect,
-        isWrong: showValidation && !isCorrect && (!isPartialMatch || blurred[index]),
+        isWrong: showValidation && !isCorrect,
         touched: touched[index],
         showValidation
     };
@@ -127,7 +127,10 @@ export const InlineBlanks: React.FC<InlineBlanksProps> = ({ children, mode = 'ty
         const dropdownOptions = Array.from(new Set([...currentOptions, answer])).sort();
 
         // Always show green if correct and not empty (InlineBlanks specific logic)
-        const isRight = isCorrect && value.trim() !== '';
+        // But respecting the blur requirement: must be blurred to show validation
+        const showVal = status.showValidation || (touched[index] && blurred[index] && value.trim() !== '');
+        const isRight = isCorrect && showVal;
+        const isWrongVal = isWrong || (showVal && !isCorrect);
 
         return (
             <span key={index} className="inline-flex items-center relative mx-1 align-middle">
@@ -142,7 +145,7 @@ export const InlineBlanks: React.FC<InlineBlanksProps> = ({ children, mode = 'ty
                         className={clsx(
                             "px-1 py-0.5 border-b-2 outline-none bg-transparent transition-colors text-center min-w-[60px] cursor-pointer appearance-none pr-4",
                             isRight ? "border-green-500 text-green-600 bg-green-50 dark:bg-green-900/20" :
-                                isWrong ? "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/20" :
+                                isWrongVal ? "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/20" :
                                     "border-gray-300 focus:border-blue-500 dark:border-gray-600"
                         )}
                     >
@@ -165,7 +168,7 @@ export const InlineBlanks: React.FC<InlineBlanksProps> = ({ children, mode = 'ty
                         className={clsx(
                             "px-1 py-0.5 border-b-2 outline-none bg-transparent transition-colors text-center min-w-[40px]",
                             isRight ? "border-green-500 text-green-600 bg-green-50 dark:bg-green-900/20" :
-                                isWrong ? "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/20" :
+                                isWrongVal ? "border-red-500 text-red-600 bg-red-50 dark:bg-red-900/20" :
                                     "border-gray-300 focus:border-blue-500 dark:border-gray-600"
                         )}
                         style={{ width: `${Math.max(answer.length * 10 + 10, 40)}px` }}
