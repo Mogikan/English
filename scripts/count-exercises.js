@@ -53,7 +53,7 @@ function scanDirectory(dir, basePath = '') {
             const content = fs.readFileSync(fullPath, 'utf-8');
             const count = countExercisesInMdx(content);
             const relativePath = path.join(basePath, item.replace('.mdx', '')).replace(/\\/g, '/');
-            const lessonPath = relativePath;
+            const lessonPath = relativePath.startsWith('/') ? relativePath : '/' + relativePath;
             results[lessonPath] = count;
         }
     }

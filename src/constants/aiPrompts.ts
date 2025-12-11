@@ -40,12 +40,21 @@ You MUST output ONLY the valid MDX code for the requested exercise(s). Do not in
 
 7. **Dialogue** (Chat-like conversation)
    \`<Dialogue>
-     <Message speaker="Anna" side="left">Hello!</Message>
-     <Message speaker="Markus" side="right">Hi! Wie geht es dir?</Message>
+     <Message speaker="Anna" side="left">
+       Hello!
+     </Message>
+     <Message speaker="Markus" side="right">
+       Hi! Wie geht es dir?
+     </Message>
    </Dialogue>\`
-   - Use \`<Message>\` components inside \`<Dialogue>\`.
-   - \`speaker\`: Name of the person speaking.
-   - \`side\`: "left" or "right" alignment.
+   - **Formatting Rule**: Place \`<Message>\` opening and closing tags on their own lines. Ensure no text exists immediately before or after the dialogue block.
+   - **Silent Mode**: If a message contains an exercise (like \`InlineBlanks\`), you **MUST** add \`silent="true"\` to the Message prop to prevent TTS from reading raw components.
+     \`<Message speaker="Teacher" side="left" silent="true">
+       <InlineBlanks mode="picker">Select the correct word: [Der|Die|Das]</InlineBlanks> Mann.
+     </Message>\`
+   - **Exercises in Dialogue**: To make a message interactive, wrap the relevant text in \`<InlineBlanks mode="picker">\` (for dropdowns) or \`<FillBlanks>\`.
+   - \`speaker\`: Name of the person.
+   - \`side\`: "left" or "right".
 
 8. **Flashcards**
    \`<Flashcards items={[{word: "Hello", wordTranslation: "Hola", phrase: "Hello friend", phraseTranslation: "Hola amigo"}]} />\`

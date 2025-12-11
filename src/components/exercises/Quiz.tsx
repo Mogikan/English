@@ -35,10 +35,12 @@ export const Quiz: React.FC<QuizProps> = ({ answer, children, multiple = false, 
         selected.length === correctAnswers.length &&
         selected.every(s => correctAnswers.includes(s));
 
+    const isMultiple = multiple || answer.includes(',');
+
     const handleSelect = (index: number) => {
         if (submitted) return;
         const val = (index + 1).toString();
-        if (multiple) {
+        if (isMultiple) {
             setSelected(prev =>
                 prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
             );
