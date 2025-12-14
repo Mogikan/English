@@ -370,8 +370,15 @@ export const FillBlanks: React.FC<FillBlanksProps> = ({ children, mode = 'input'
         });
 
     const renderBlank = useCallback((index: number, data: BlankData, status: BlankStatus) => {
-        const { value, isCorrect, isWrong } = status;
+        const { value } = status;
         const { answer, localOptions } = data;
+
+        // Strict validation: only show if submitted
+        const isCorrectRaw = value.trim().toLowerCase() === data.answer.toLowerCase();
+        const shouldShowValidation = submitted;
+
+        const isCorrect = shouldShowValidation && isCorrectRaw;
+        const isWrong = shouldShowValidation && !isCorrectRaw && value.trim() !== '';
         // Combine answer with options for the dropdown
         const currentOptions = localOptions.length > 0 ? localOptions : options;
         const dropdownOptions = Array.from(new Set([...currentOptions, answer])).sort();

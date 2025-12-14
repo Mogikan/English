@@ -119,18 +119,19 @@ export const InlineBlanks: React.FC<InlineBlanksProps> = ({ children, mode = 'ty
     }, [allCorrect, isCompleted, markExerciseComplete, location.pathname]);
 
     const renderBlank = useCallback((index: number, data: BlankData, status: BlankStatus) => {
-        const { value, isCorrect, isWrong } = status;
+        const { value } = status;
         const { answer, localOptions } = data;
 
         // Combine answer with options for the dropdown
         const currentOptions = localOptions.length > 0 ? localOptions : options;
         const dropdownOptions = Array.from(new Set([...currentOptions, answer])).sort();
 
-        // Always show green if correct and not empty (InlineBlanks specific logic)
-        // But respecting the blur requirement: must be blurred to show validation
-        const showVal = status.showValidation || (touched[index] && blurred[index] && value.trim() !== '');
-        const isRight = isCorrect && showVal;
-        const isWrongVal = isWrong || (showVal && !isCorrect);
+        // Strict validation: only show if touched AND blurred
+        const isCorrectRaw = value.trim().toLowerCase() === data.answer.toLowerCase();
+        const shouldShowValidation = touched[index] && blurred[index] && value.trim() !== '';
+
+        const isRight = shouldShowValidation && isCorrectRaw;
+        const isWrongVal = shouldShowValidation && !isCorrectRaw;
 
         return (
             <span key={index} className="inline-flex items-center relative mx-1 align-middle">
